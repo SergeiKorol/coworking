@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Брони{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">Брони</h1>
+  <div>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('admin.booking_new') }}">Новая</a>
+    <form method="post" action="{{ url_for('admin.logout') }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Выйти</button>
+    </form>
+  </div>
+</div>
+<div class="table-responsive bg-white rounded shadow-sm">
+  <table class="table table-sm mb-0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Место</th>
+        <th>Начало</th>
+        <th>Конец</th>
+        <th>Статус</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in bookings %}
+      <tr>
+        <td>{{ b.id }}</td>
+        <td>{{ b.unit_id }}</td>
+        <td>{{ b.starts_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ b.ends_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ b.status.value }}</td>
+        <td><a href="{{ url_for('admin.booking_edit', booking_id=b.id) }}">Изменить</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-muted">Пока нет броней</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

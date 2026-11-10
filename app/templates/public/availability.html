@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Занятость{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Занятость на {{ selected_date.strftime('%d.%m.%Y') }}</h1>
+
+<div class="day-strip mb-4" role="navigation" aria-label="Выбор дня">
+  {% for chip in chips %}
+  <a
+    href="{{ url_for('public.availability', date=chip.iso) }}"
+    class="day-chip text-decoration-none {% if chip.iso == selected_date.isoformat() %}day-chip--active{% endif %}"
+  >
+    <span class="day-chip__day">{{ chip.day_number }}</span>
+    <span class="day-chip__month">{{ chip.month_short_ru }}</span>
+    <span class="day-chip__dow">{{ chip.weekday_short_ru }}</span>
+  </a>
+  {% endfor %}
+</div>
+
+{% if not type_views %}
+<p class="text-muted">Нет данных о местах.</p>
+{% endif %}
+
+{% for block in type_views %}
+<section class="mb-4">
+  <h2 class="h5">{{ block.title }}</h2>
+  <div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-sm mb-0">
+      <thead>
+        <tr>
+          <th>Слот</th>
+          <th>Занято</th>
+          <th>Свободно</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in block.rows %}
+        <tr>
+          <td>{{ row.label }}</td>
+          <td>
+            {% if row.occupied_unit_names %}
+              {{ row.occupied_unit_names | join(', ') }}
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td>{{ row.free_count }} / {{ row.total_count }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endfor %}
+
+<p class="text-muted small">Для брони позвоните администратору. На сайте показаны только подтверждённые брони.</p>
+{% endblock %}

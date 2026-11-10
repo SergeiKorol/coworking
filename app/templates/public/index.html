@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Коворкинг — главная{% endblock %}
+{% block content %}
+<div class="p-4 p-md-5 mb-4 bg-white rounded-3 shadow-sm">
+  <h1 class="display-6">Добро пожаловать</h1>
+  <p class="lead">Тихое пространство для работы и встреч. Бронь — по телефону после проверки свободных мест.</p>
+  <p class="mb-3"><strong>Телефон:</strong> <a href="tel:+79000000000">+7 (900) 000-00-00</a></p>
+  <a class="btn btn-primary btn-lg" href="{{ url_for('public.availability') }}">Смотреть занятость</a>
+</div>
+{% endblock %}
