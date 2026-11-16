@@ -57,11 +57,10 @@ class BookingForm(FlaskForm):
     status = SelectField(
         "Статус",
         choices=[
-            (BookingStatus.PENDING.value, "Ожидает"),
             (BookingStatus.CONFIRMED.value, "Подтверждена"),
             (BookingStatus.CANCELLED.value, "Отменена"),
         ],
-        default=BookingStatus.PENDING.value,
+        default=BookingStatus.CONFIRMED.value,
     )
     note = TextAreaField("Заметка", validators=[Optional(), Length(max=2000)])
 

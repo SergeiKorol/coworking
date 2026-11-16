@@ -1,31 +1,22 @@
 """Build public availability view models for a single day."""
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date
 
-from app.catalog import get_place_type, get_unit, list_place_types, units_for_type
-from app.catalog.types import Granularity
+from app.catalog import get_unit
+from app.catalog.data import PUBLIC_UNIT_ORDER
 from app.models import Booking, BookingStatus
 from app.services.time_range import day_end_exclusive, day_start, ranges_overlap
 
 
 @dataclass(frozen=True)
-class SlotRow:
-    """One row in the public availability table."""
+class UnitStatus:
+    """Occupancy for one catalog unit on a single calendar day."""
 
-    label: str
-    occupied_unit_names: tuple[str, ...]
-    free_count: int
-    total_count: int
-
-
-@dataclass(frozen=True)
-class TypeDayView:
-    """Availability block for a single place type on one day."""
-
+    unit_id: str
+    display_name: str
     type_id: str
-    title: str
-    rows: tuple[SlotRow, ...]
+    occupied: bool
 
 
 def _confirmed_for_public(booking: Booking) -> bool:
@@ -45,76 +36,33 @@ def _bookings_for_day(bookings: list[Booking], selected: date) -> list[Booking]:
     ]
 
 
-def build_day_availability(
+def build_day_unit_statuses(
     selected: date,
     bookings: list[Booking],
-) -> list[TypeDayView]:
+) -> list[UnitStatus]:
     """
-    Compute occupancy per place type for ``selected``.
+    Compute per-unit occupied flag for the public availability page.
 
-    Args:
-        selected: Calendar day shown on the public page.
-        bookings: All bookings from the database (caller may pre-filter by range).
+    Units follow ``PUBLIC_UNIT_ORDER``; unknown units in DB are ignored here.
     """
     relevant = _bookings_for_day(bookings, selected)
-    views: list[TypeDayView] = []
+    d_start = day_start(selected)
+    d_end = day_end_exclusive(selected)
+    statuses: list[UnitStatus] = []
 
-    for place_type in list_place_types():
-        units = units_for_type(place_type.id)
-        total = len(units)
-        if total == 0:
-            continue
-
-        rows: list[SlotRow] = []
-
-        if place_type.granularity == Granularity.HOURLY:
-            for hour in range(place_type.hour_start, place_type.hour_end):
-                slot_start = datetime(selected.year, selected.month, selected.day, hour)
-                slot_end = slot_start + timedelta(hours=1)
-                occupied: list[str] = []
-                for unit in units:
-                    if any(
-                        b.unit_id == unit.id
-                        and ranges_overlap(b.starts_at, b.ends_at, slot_start, slot_end)
-                        for b in relevant
-                    ):
-                        occupied.append(unit.display_name)
-                label = f"{hour:02d}:00–{hour + 1:02d}:00"
-                rows.append(
-                    SlotRow(
-                        label=label,
-                        occupied_unit_names=tuple(occupied),
-                        free_count=total - len(occupied),
-                        total_count=total,
-                    )
-                )
-        else:
-            d_start = day_start(selected)
-            d_end = day_end_exclusive(selected)
-            occupied: list[str] = []
-            for unit in units:
-                if any(
-                    b.unit_id == unit.id
-                    and ranges_overlap(b.starts_at, b.ends_at, d_start, d_end)
-                    for b in relevant
-                ):
-                    occupied.append(unit.display_name)
-            label = "Весь день" if place_type.granularity == Granularity.DAILY else "Месяц (на этот день)"
-            rows.append(
-                SlotRow(
-                    label=label,
-                    occupied_unit_names=tuple(occupied),
-                    free_count=total - len(occupied),
-                    total_count=total,
-                )
-            )
-
-        views.append(
-            TypeDayView(
-                type_id=place_type.id,
-                title=place_type.title,
-                rows=tuple(rows),
+    for unit_id in PUBLIC_UNIT_ORDER:
+        unit = get_unit(unit_id)
+        occupied = any(
+            booking.unit_id == unit_id
+            and ranges_overlap(booking.starts_at, booking.ends_at, d_start, d_end)
+            for booking in relevant
+        )
+        statuses.append(
+            UnitStatus(
+                unit_id=unit.id,
+                display_name=unit.display_name,
+                type_id=unit.type_id,
+                occupied=occupied,
             )
         )
-
-    return views
+    return statuses

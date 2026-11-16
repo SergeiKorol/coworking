@@ -1,8 +1,14 @@
 """HTTP tests for public routes."""
 
-from datetime import date, timedelta
+from datetime import timedelta
 
 from app.services.clock import today_in_timezone
+
+
+def test_root_redirects_to_availability(client) -> None:
+    response = client.get("/", follow_redirects=False)
+    assert response.status_code == 302, "root must redirect to availability"
+    assert "/availability" in response.headers["Location"]
 
 
 def test_availability_redirects_out_of_window(client, flask_app) -> None:
@@ -16,7 +22,9 @@ def test_availability_redirects_out_of_window(client, flask_app) -> None:
 def test_availability_ok(client) -> None:
     response = client.get("/availability")
     assert response.status_code == 200, "availability page must render"
-    assert "Переговорные".encode() in response.data, "page must list meeting room section"
+    body = response.data.decode("utf-8")
+    assert "Стол 1" in body, "page must list desk units"
+    assert "Админ" not in body, "public page must not expose admin link"
 
 
 def test_admin_bookings_redirect_anonymous(client) -> None:

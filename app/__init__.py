@@ -2,7 +2,7 @@
 
 from flask import Flask
 
-from app.config import BaseConfig, TestingConfig
+from app.config import BaseConfig, TestingConfig, resolve_database_url
 from app.extensions import csrf, db, migrate
 
 
@@ -19,6 +19,9 @@ def create_app(config_name: str | None = None) -> Flask:
         flask_app.config.from_object(TestingConfig)
     else:
         flask_app.config.from_object(BaseConfig)
+        flask_app.config["SQLALCHEMY_DATABASE_URI"] = resolve_database_url(
+            flask_app.config["SQLALCHEMY_DATABASE_URI"]
+        )
         missing = [
             key
             for key, value in (
@@ -42,6 +45,14 @@ def create_app(config_name: str | None = None) -> Flask:
 
     flask_app.register_blueprint(public_bp)
     flask_app.register_blueprint(admin_bp)
+
+    @flask_app.context_processor
+    def inject_site_content() -> dict[str, str]:
+        """Expose contact details to public templates."""
+        return {
+            "site_address": flask_app.config["SITE_ADDRESS"],
+            "site_phone": flask_app.config["SITE_PHONE"],
+        }
 
     import app.models  # noqa: F401
 

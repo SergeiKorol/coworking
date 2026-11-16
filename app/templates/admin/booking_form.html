@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_admin.html" %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <h1 class="h4 mb-3">{{ title }}</h1>
@@ -9,22 +9,8 @@
     {{ form.unit_id(class="form-select") }}
   </div>
   <div class="border rounded p-3 mb-3">
-    <p class="small text-muted mb-2">Заполните поля, подходящие выбранному типу места.</p>
+    <p class="small text-muted mb-2">Бронь на целый день или диапазон дней (включительно).</p>
     <div class="row g-2">
-      <div class="col-md-4">
-        {{ form.hourly_date.label(class="form-label") }}
-        {{ form.hourly_date(class="form-control") }}
-      </div>
-      <div class="col-md-4">
-        {{ form.start_hour.label(class="form-label") }}
-        {{ form.start_hour(class="form-control") }}
-      </div>
-      <div class="col-md-4">
-        {{ form.duration_hours.label(class="form-label") }}
-        {{ form.duration_hours(class="form-control") }}
-      </div>
-    </div>
-    <div class="row g-2 mt-2">
       <div class="col-md-6">
         {{ form.daily_start.label(class="form-label") }}
         {{ form.daily_start(class="form-control") }}
@@ -34,21 +20,15 @@
         {{ form.daily_end(class="form-control") }}
       </div>
     </div>
-    <div class="row g-2 mt-2">
-      <div class="col-md-6">
-        {{ form.monthly_year.label(class="form-label") }}
-        {{ form.monthly_year(class="form-control") }}
-      </div>
-      <div class="col-md-6">
-        {{ form.monthly_month.label(class="form-label") }}
-        {{ form.monthly_month(class="form-control") }}
-      </div>
-    </div>
   </div>
+  {% if show_status_field %}
   <div class="mb-3">
     {{ form.status.label(class="form-label") }}
     {{ form.status(class="form-select") }}
   </div>
+  {% else %}
+  <p class="small text-muted mb-3">Новая бронь сразу сохраняется как <strong>подтверждённая</strong>.</p>
+  {% endif %}
   <div class="mb-3">
     {{ form.note.label(class="form-label") }}
     {{ form.note(class="form-control", rows=3) }}

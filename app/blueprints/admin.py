@@ -22,6 +22,21 @@ from app.services.booking_validation import save_booking
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
+_ADMIN_ALLOWED_STATUSES = frozenset(
+    {BookingStatus.CONFIRMED, BookingStatus.CANCELLED}
+)
+
+
+def _parse_admin_status(raw: str | None) -> BookingStatus | None:
+    """Reject pending and other values not allowed in admin UI."""
+    try:
+        status = BookingStatus(raw)
+    except ValueError:
+        return None
+    if status not in _ADMIN_ALLOWED_STATUSES:
+        return None
+    return status
+
 
 def login_required(view):
     """Redirect anonymous users to the login form."""
@@ -74,7 +89,10 @@ def _prefill_form(form: BookingForm, booking: Booking | None = None) -> None:
     if booking is None:
         return
     form.unit_id.data = booking.unit_id
-    form.status.data = booking.status.value
+    if booking.status in _ADMIN_ALLOWED_STATUSES:
+        form.status.data = booking.status.value
+    else:
+        form.status.data = BookingStatus.CONFIRMED.value
     form.note.data = booking.note
     unit = get_unit(booking.unit_id)
     place_type = get_place_type(unit.type_id)
@@ -101,12 +119,11 @@ def booking_new():
         if parse_error:
             flash(parse_error, "danger")
         else:
-            status = BookingStatus(form.status.data)
             booking, result = save_booking(
                 form.unit_id.data,
                 starts_at,
                 ends_at,
-                status,
+                BookingStatus.CONFIRMED,
                 form.note.data,
             )
             if booking is None:
@@ -119,7 +136,7 @@ def booking_new():
         "admin/booking_form.html",
         form=form,
         title="Новая бронь",
-        granularity_hint=None,
+        show_status_field=False,
     )
 
 
@@ -128,31 +145,38 @@ def booking_new():
 def booking_edit(booking_id: int):
     """Update status, note, or interval of an existing booking."""
     booking = Booking.query.get_or_404(booking_id)
-    form = BookingForm(obj=booking)
-    _prefill_form(form, booking)
+    if request.method == "GET":
+        form = BookingForm(obj=booking)
+        _prefill_form(form, booking)
+    else:
+        form = BookingForm()
     if form.validate_on_submit():
         starts_at, ends_at, parse_error = form.resolve_interval()
         if parse_error:
             flash(parse_error, "danger")
         else:
-            status = BookingStatus(form.status.data)
-            updated, result = save_booking(
-                form.unit_id.data,
-                starts_at,
-                ends_at,
-                status,
-                form.note.data,
-                booking_id=booking.id,
-            )
-            if updated is None:
-                for message in result.errors:
-                    flash(message, "danger")
+            status = _parse_admin_status(form.status.data)
+            if status is None:
+                flash("Недопустимый статус. Доступны: подтверждена или отменена.", "danger")
             else:
-                flash("Бронь обновлена.", "success")
-                return redirect(url_for("admin.bookings_list"))
+                updated, result = save_booking(
+                    form.unit_id.data,
+                    starts_at,
+                    ends_at,
+                    status,
+                    form.note.data,
+                    booking_id=booking.id,
+                )
+            if status is not None:
+                if updated is None:
+                    for message in result.errors:
+                        flash(message, "danger")
+                else:
+                    flash("Бронь обновлена.", "success")
+                    return redirect(url_for("admin.bookings_list"))
     return render_template(
         "admin/booking_form.html",
         form=form,
         title=f"Бронь #{booking.id}",
-        granularity_hint=None,
+        show_status_field=True,
     )

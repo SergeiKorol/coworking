@@ -1,7 +1,7 @@
-{% extends "base.html" %}
-{% block title %}Занятость{% endblock %}
+{% extends "public/base_public.html" %}
+{% block title %}Занятость — Коворкинг{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">Занятость на {{ selected_date.strftime('%d.%m.%Y') }}</h1>
+<h1 class="availability-heading">Занятость на {{ selected_date.strftime('%d.%m.%Y') }}</h1>
 
 <div class="day-strip mb-4" role="navigation" aria-label="Выбор дня">
   {% for chip in chips %}
@@ -16,41 +16,42 @@
   {% endfor %}
 </div>
 
-{% if not type_views %}
-<p class="text-muted">Нет данных о местах.</p>
-{% endif %}
-
-{% for block in type_views %}
-<section class="mb-4">
-  <h2 class="h5">{{ block.title }}</h2>
-  <div class="table-responsive bg-white rounded shadow-sm">
-    <table class="table table-sm mb-0">
-      <thead>
-        <tr>
-          <th>Слот</th>
-          <th>Занято</th>
-          <th>Свободно</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in block.rows %}
-        <tr>
-          <td>{{ row.label }}</td>
-          <td>
-            {% if row.occupied_unit_names %}
-              {{ row.occupied_unit_names | join(', ') }}
-            {% else %}
-              <span class="text-muted">—</span>
-            {% endif %}
-          </td>
-          <td>{{ row.free_count }} / {{ row.total_count }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="floor-plan-wrap">
+  <img
+    src="{{ url_for('static', filename='images/floor-plan.png') }}"
+    alt="Схема помещений"
+    class="floor-plan-img"
+  >
+  {% for marker in overlay_markers %}
+  {% set status = status_by_id[marker.unit_id] %}
+  <div
+    class="floor-overlay-marker {% if status.occupied %}floor-overlay-marker--busy{% else %}floor-overlay-marker--free{% endif %}"
+    style="top: {{ marker.top_pct }}%; left: {{ marker.left_pct }}%;"
+  >
+    <span class="floor-overlay-marker__name">{{ status.display_name }}</span>
+    <span class="floor-overlay-marker__state">{% if status.occupied %}занят{% else %}свободен{% endif %}</span>
   </div>
-</section>
-{% endfor %}
+  {% endfor %}
+</div>
 
-<p class="text-muted small">Для брони позвоните администратору. На сайте показаны только подтверждённые брони.</p>
+<section class="unit-cards" aria-label="Занятость на выбранный день">
+  <div class="row g-3 mb-3">
+    {% for status in unit_statuses if status.type_id == 'hot_desk' %}
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="unit-card {% if status.occupied %}unit-card--busy{% else %}unit-card--free{% endif %}">
+        <div class="unit-card__title">{{ status.display_name }}</div>
+        <div class="unit-card__state">{% if status.occupied %}Занят{% else %}Свободен{% endif %}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% for status in unit_statuses if status.type_id == 'meeting_room' %}
+  <div class="unit-card unit-card--meeting {% if status.occupied %}unit-card--busy{% else %}unit-card--free{% endif %}">
+    <div class="unit-card__title">{{ status.display_name }}</div>
+    <div class="unit-card__state">{% if status.occupied %}Занята{% else %}Свободна{% endif %}</div>
+  </div>
+  {% endfor %}
+</section>
+
+<p class="availability-footnote">Для брони позвоните по номеру в шапке. На сайте только подтверждённые брони.</p>
 {% endblock %}

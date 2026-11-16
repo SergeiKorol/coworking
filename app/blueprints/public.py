@@ -4,8 +4,9 @@ from datetime import date
 
 from flask import Blueprint, current_app, redirect, render_template, request, url_for
 
+from app.catalog.floor_overlay import FLOOR_OVERLAY_MARKERS
 from app.models import Booking
-from app.services.availability import build_day_availability
+from app.services.availability import build_day_unit_statuses
 from app.services.clock import today_in_timezone
 from app.services.date_window import build_seven_day_strip, clamp_date_to_window
 
@@ -23,9 +24,9 @@ def _parse_date(value: str | None, fallback: date) -> date | None:
 
 
 @public_bp.get("/")
-def index() -> str:
-    """Landing page with contact call-to-action."""
-    return render_template("public/index.html")
+def index():
+    """Landing route redirects straight to availability."""
+    return redirect(url_for("public.availability"))
 
 
 @public_bp.get("/availability")
@@ -46,11 +47,14 @@ def availability():
     selected = clamp_date_to_window(selected, today)
     chips = build_seven_day_strip(today)
     bookings = Booking.query.all()
-    type_views = build_day_availability(selected, bookings)
+    unit_statuses = build_day_unit_statuses(selected, bookings)
+    status_by_id = {status.unit_id: status for status in unit_statuses}
 
     return render_template(
         "public/availability.html",
         chips=chips,
         selected_date=selected,
-        type_views=type_views,
+        unit_statuses=unit_statuses,
+        overlay_markers=FLOOR_OVERLAY_MARKERS,
+        status_by_id=status_by_id,
     )

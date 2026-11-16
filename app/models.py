@@ -30,7 +30,7 @@ class Booking(db.Model):
     status = db.Column(
         db.Enum(BookingStatus, name="booking_status", native_enum=False),
         nullable=False,
-        default=BookingStatus.PENDING,
+        default=BookingStatus.CONFIRMED,
     )
     note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
