@@ -56,6 +56,32 @@
   margin-bottom: 1rem;
 }
 
+.availability-date-toolbar {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.availability-date-toolbar__strip {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.availability-calendar-trigger {
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.availability-calendar-trigger__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .floor-plan-wrap {
   position: relative;
   width: 100%;

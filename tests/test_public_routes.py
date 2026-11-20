@@ -3,6 +3,7 @@
 from datetime import timedelta
 
 from app.services.clock import today_in_timezone
+from app.services.date_window import last_allowed_date
 
 
 def test_root_redirects_to_availability(client) -> None:
@@ -13,10 +14,27 @@ def test_root_redirects_to_availability(client) -> None:
 
 def test_availability_redirects_out_of_window(client, flask_app) -> None:
     today = today_in_timezone(flask_app.config["TIMEZONE"])
-    future = today + timedelta(days=30)
-    response = client.get(f"/availability?date={future.isoformat()}", follow_redirects=False)
+    beyond = last_allowed_date(today) + timedelta(days=1)
+    response = client.get(f"/availability?date={beyond.isoformat()}", follow_redirects=False)
     assert response.status_code == 302, "out-of-window date must redirect"
     assert "date=" in response.headers["Location"], "redirect must include date query"
+
+
+def test_availability_last_horizon_day_ok(client, flask_app) -> None:
+    today = today_in_timezone(flask_app.config["TIMEZONE"])
+    last = last_allowed_date(today)
+    response = client.get(f"/availability?date={last.isoformat()}")
+    assert response.status_code == 200, "last horizon day must render"
+
+
+def test_availability_includes_calendar_ui(client) -> None:
+    response = client.get("/availability")
+    body = response.data.decode("utf-8")
+    assert "availability-date-toolbar" in body, "date toolbar must wrap chips and calendar"
+    assert "availability-month-calendar" not in body, "month grid must be removed"
+    assert 'id="availability-date-picker"' in body, "native date picker must exist"
+    assert "Пред. неделя" not in body, "week arrows must be removed"
+    assert 'id="availability-calendar-open"' in body, "calendar button required"
 
 
 def test_availability_ok(client) -> None:

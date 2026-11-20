@@ -13,8 +13,11 @@ from app.catalog.floor_plan_hotspots import (
 from app.models import Booking
 from app.services.availability import build_day_unit_statuses
 from app.services.clock import today_in_timezone
-from app.services.date_window import build_seven_day_strip, clamp_date_to_window
-
+from app.services.date_window import (
+    build_seven_day_strip,
+    clamp_date_to_window,
+    last_allowed_date,
+)
 public_bp = Blueprint("public", __name__)
 
 
@@ -37,12 +40,13 @@ def index():
 @public_bp.get("/availability")
 def availability():
     """
-    Show occupancy for a single day inside the rolling seven-day window.
+    Show occupancy for a single day inside ``[today, today + 30]``.
 
     Out-of-range ``?date=`` values redirect to today.
     """
     tz_name: str = current_app.config["TIMEZONE"]
     today = today_in_timezone(tz_name)
+    last_date = last_allowed_date(today)
 
     parsed = _parse_date(request.args.get("date"), today)
     selected = parsed if parsed is not None else today
@@ -66,4 +70,7 @@ def availability():
         floor_plan_viewbox_width=FLOOR_PLAN_VIEWBOX_WIDTH,
         floor_plan_viewbox_height=FLOOR_PLAN_VIEWBOX_HEIGHT,
         floor_plan_image_url=url_for("static", filename="images/floor_plan.png"),
+        min_selectable_date=today,
+        max_selectable_date=last_date,
+        availability_base_url=url_for("public.availability"),
     )

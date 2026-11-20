@@ -1,7 +1,9 @@
-"""Seven-day date strip for the public availability page."""
+"""Date strip and horizon for the public availability page."""
 
 from dataclasses import dataclass
 from datetime import date, timedelta
+
+PUBLIC_AVAILABILITY_HORIZON_DAYS = 30
 
 MONTHS_SHORT_RU: tuple[str, ...] = (
     "янв",
@@ -30,15 +32,18 @@ class DayChip:
     weekday_short_ru: str
 
 
-def build_seven_day_strip(anchor: date) -> list[DayChip]:
-    """
-    Build seven consecutive days beginning at ``anchor`` (usually today).
+def last_allowed_date(today: date) -> date:
+    """Last calendar day visitors may open on the public availability page."""
+    return today + timedelta(days=PUBLIC_AVAILABILITY_HORIZON_DAYS)
 
-    The leftmost chip is ``anchor``; the rightmost is ``anchor + 6 days``.
+
+def build_seven_day_strip(today: date) -> list[DayChip]:
+    """
+    Seven consecutive days from ``today`` (the rolling “this week” strip).
     """
     chips: list[DayChip] = []
     for offset in range(7):
-        current = anchor + timedelta(days=offset)
+        current = today + timedelta(days=offset)
         chips.append(
             DayChip(
                 iso=current.isoformat(),
@@ -52,9 +57,9 @@ def build_seven_day_strip(anchor: date) -> list[DayChip]:
 
 def clamp_date_to_window(requested: date, today: date) -> date:
     """
-  Return ``requested`` when it falls in ``[today, today + 6]``; otherwise ``today``.
+    Return ``requested`` when it falls in ``[today, last_allowed]``; otherwise ``today``.
     """
-    last_allowed = today + timedelta(days=6)
+    last_allowed = last_allowed_date(today)
     if requested < today or requested > last_allowed:
         return today
     return requested

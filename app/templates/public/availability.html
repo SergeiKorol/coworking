@@ -3,17 +3,35 @@
 {% block content %}
 <h1 class="availability-heading">Занятость на {{ selected_date.strftime('%d.%m.%Y') }}</h1>
 
-<div class="day-strip mb-4" role="navigation" aria-label="Выбор дня">
-  {% for chip in chips %}
-  <a
-    href="{{ url_for('public.availability', date=chip.iso) }}"
-    class="day-chip text-decoration-none {% if chip.iso == selected_date.isoformat() %}day-chip--active{% endif %}"
-  >
-    <span class="day-chip__day">{{ chip.day_number }}</span>
-    <span class="day-chip__month">{{ chip.month_short_ru }}</span>
-    <span class="day-chip__dow">{{ chip.weekday_short_ru }}</span>
-  </a>
-  {% endfor %}
+<div class="availability-date-toolbar mb-4" role="navigation" aria-label="Выбор даты">
+  <div class="day-strip availability-date-toolbar__strip" aria-label="Ближайшие семь дней">
+    {% for chip in chips %}
+    <a
+      href="{{ url_for('public.availability', date=chip.iso) }}"
+      class="day-chip text-decoration-none {% if chip.iso == selected_date.isoformat() %}day-chip--active{% endif %}"
+    >
+      <span class="day-chip__day">{{ chip.day_number }}</span>
+      <span class="day-chip__month">{{ chip.month_short_ru }}</span>
+      <span class="day-chip__dow">{{ chip.weekday_short_ru }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="availability-calendar-trigger">
+    <button type="button" class="btn btn-outline-primary btn-sm" id="availability-calendar-open">
+      Календарь
+    </button>
+    <input
+      type="date"
+      id="availability-date-picker"
+      class="availability-calendar-trigger__input"
+      min="{{ min_selectable_date.isoformat() }}"
+      max="{{ max_selectable_date.isoformat() }}"
+      value="{{ selected_date.isoformat() }}"
+      data-availability-base="{{ availability_base_url }}"
+      aria-label="Выберите дату"
+    >
+  </div>
 </div>
 
 <div class="floor-plan-wrap">
@@ -40,4 +58,29 @@
 </section>
 
 <p class="availability-footnote">Для брони позвоните по номеру в шапке. На сайте только подтверждённые брони.</p>
+<script>
+  (function () {
+    var picker = document.getElementById("availability-date-picker");
+    var openBtn = document.getElementById("availability-calendar-open");
+    if (openBtn && picker) {
+      openBtn.addEventListener("click", function () {
+        if (picker.showPicker) {
+          picker.showPicker();
+        } else {
+          picker.click();
+        }
+      });
+    }
+    if (!picker) {
+      return;
+    }
+    picker.addEventListener("change", function () {
+      if (!picker.value) {
+        return;
+      }
+      var base = picker.getAttribute("data-availability-base") || "/availability";
+      window.location.href = base + "?date=" + encodeURIComponent(picker.value);
+    });
+  })();
+</script>
 {% endblock %}
