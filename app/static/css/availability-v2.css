@@ -162,6 +162,14 @@
 }
 
 @media (max-width: 768px) {
+  .site-header {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .site-header__logo {
+    display: none;
+  }
+
   .site-header__inner {
     grid-template-columns: 1fr;
     text-align: center;

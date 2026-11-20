@@ -1,6 +1,7 @@
 """HTTP tests for public routes."""
 
 from datetime import timedelta
+from pathlib import Path
 
 from app.services.clock import today_in_timezone
 from app.services.date_window import last_allowed_date
@@ -35,6 +36,16 @@ def test_availability_includes_calendar_ui(client) -> None:
     assert 'id="availability-date-picker"' in body, "native date picker must exist"
     assert "Пред. неделя" not in body, "week arrows must be removed"
     assert 'id="availability-calendar-open"' in body, "calendar button required"
+
+
+def test_public_header_css_hides_logo_on_mobile() -> None:
+    css_path = (
+        Path(__file__).resolve().parent.parent / "app/static/css/availability-v2.css"
+    )
+    css = css_path.read_text(encoding="utf-8")
+    assert ".site-header__logo" in css and "display: none" in css, (
+        "mobile stylesheet must hide header logo"
+    )
 
 
 def test_availability_ok(client) -> None:
