@@ -1,0 +1,60 @@
+<svg
+  class="floor-plan-svg"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  viewBox="0 0 {{ floor_plan_viewbox_width }} {{ floor_plan_viewbox_height }}"
+  role="img"
+  aria-labelledby="floor-plan-title"
+>
+  <title id="floor-plan-title">Схема коворкинга, занятость на {{ selected_date.strftime('%d.%m.%Y') }}</title>
+
+  <image
+    href="{{ floor_plan_image_url }}"
+    xlink:href="{{ floor_plan_image_url }}"
+    x="0"
+    y="0"
+    width="{{ floor_plan_viewbox_width }}"
+    height="{{ floor_plan_viewbox_height }}"
+    preserveAspectRatio="xMidYMid meet"
+  />
+
+  {% set meeting = status_by_id[meeting_hotspot.unit_id] %}
+  <g
+    id="{{ meeting_hotspot.unit_id }}"
+    data-unit-id="{{ meeting_hotspot.unit_id }}"
+    class="floor-unit {% if meeting.occupied %}floor-unit--busy{% else %}floor-unit--free{% endif %}"
+    aria-label="{{ meeting.display_name }}, {% if meeting.occupied %}занята{% else %}свободна{% endif %}"
+  >
+    <rect
+      class="floor-unit__table"
+      x="{{ meeting_hotspot.x }}"
+      y="{{ meeting_hotspot.y }}"
+      width="{{ meeting_hotspot.width }}"
+      height="{{ meeting_hotspot.height }}"
+      rx="{{ meeting_hotspot.rx }}"
+    />
+  </g>
+
+  {% for spot in desk_hotspots %}
+  {% set st = status_by_id[spot.unit_id] %}
+  {% set desk_number = spot.unit_id.split('-', 1)[1] %}
+  <g
+    id="{{ spot.unit_id }}"
+    data-unit-id="{{ spot.unit_id }}"
+    class="floor-unit {% if st.occupied %}floor-unit--busy{% else %}floor-unit--free{% endif %}"
+    aria-label="{{ st.display_name }}, {% if st.occupied %}занят{% else %}свободен{% endif %}"
+  >
+    <circle class="floor-unit__badge" cx="{{ spot.cx }}" cy="{{ spot.cy }}" r="{{ spot.radius }}"/>
+    <text
+      class="floor-unit__label"
+      x="{{ spot.cx }}"
+      y="{{ spot.cy }}"
+      text-anchor="middle"
+      dominant-baseline="central"
+      font-size="28"
+      font-weight="700"
+      font-family="Arial,sans-serif"
+    >{{ desk_number }}</text>
+  </g>
+  {% endfor %}
+</svg>

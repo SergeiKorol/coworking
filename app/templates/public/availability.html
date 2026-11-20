@@ -17,21 +17,7 @@
 </div>
 
 <div class="floor-plan-wrap">
-  <img
-    src="{{ url_for('static', filename='images/floor-plan.png') }}"
-    alt="Схема помещений"
-    class="floor-plan-img"
-  >
-  {% for marker in overlay_markers %}
-  {% set status = status_by_id[marker.unit_id] %}
-  <div
-    class="floor-overlay-marker {% if status.occupied %}floor-overlay-marker--busy{% else %}floor-overlay-marker--free{% endif %}"
-    style="top: {{ marker.top_pct }}%; left: {{ marker.left_pct }}%;"
-  >
-    <span class="floor-overlay-marker__name">{{ status.display_name }}</span>
-    <span class="floor-overlay-marker__state">{% if status.occupied %}занят{% else %}свободен{% endif %}</span>
-  </div>
-  {% endfor %}
+  {% include "public/floor_plan.svg" %}
 </div>
 
 <section class="unit-cards" aria-label="Занятость на выбранный день">

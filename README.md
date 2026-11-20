@@ -42,6 +42,28 @@ pytest -v
 
 Аналогично: WSGI на `wsgi.py`, SQLite в `instance/` с правами записи на каталог `instance/`.
 
+## Replit (SQLite)
+
+Проект рассчитан на **SQLite** в `instance/coworking.db`. Встроенную **production PostgreSQL** Replit для этого репозитория не используйте.
+
+1. **Secrets** (Development и **Production**): скопируйте поля из `.env.example`.
+   - Обязательно задайте `DATABASE_URL=sqlite:///instance/coworking.db`.
+   - Удалите из Secrets любой `DATABASE_URL` с `postgresql://`, иначе приложение упадёт без `psycopg`.
+   - Нужны: `FLASK_SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`.
+2. В каталоге Repl: `pip install -r requirements.txt`.
+3. Один раз создайте таблицы:
+
+   ```bash
+   mkdir -p instance
+   python -c "from wsgi import app; from app.extensions import db; \
+   with app.app_context(): db.create_all(); print('OK')"
+   ```
+
+4. Локальный Run / Deploy: `python wsgi.py` (слушает `0.0.0.0:5000`, снаружи порт **80** — см. `.replit`).
+5. На экране Deploy **не** включайте «production database» с копированием из dev Postgres — для SQLite это не нужно.
+
+В репозитории лежит `.replit` без лишнего проброса порта `8080`.
+
 ## Перенос на платный хостинг
 
 Замените `DATABASE_URL` (например PostgreSQL), выполните миграции, обновите WSGI и секреты.

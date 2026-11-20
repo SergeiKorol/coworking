@@ -4,7 +4,12 @@ from datetime import date
 
 from flask import Blueprint, current_app, redirect, render_template, request, url_for
 
-from app.catalog.floor_overlay import FLOOR_OVERLAY_MARKERS
+from app.catalog.floor_plan_hotspots import (
+    DESK_HOTSPOTS,
+    FLOOR_PLAN_VIEWBOX_HEIGHT,
+    FLOOR_PLAN_VIEWBOX_WIDTH,
+    MEETING_TABLE_HOTSPOT,
+)
 from app.models import Booking
 from app.services.availability import build_day_unit_statuses
 from app.services.clock import today_in_timezone
@@ -55,6 +60,10 @@ def availability():
         chips=chips,
         selected_date=selected,
         unit_statuses=unit_statuses,
-        overlay_markers=FLOOR_OVERLAY_MARKERS,
         status_by_id=status_by_id,
+        desk_hotspots=DESK_HOTSPOTS,
+        meeting_hotspot=MEETING_TABLE_HOTSPOT,
+        floor_plan_viewbox_width=FLOOR_PLAN_VIEWBOX_WIDTH,
+        floor_plan_viewbox_height=FLOOR_PLAN_VIEWBOX_HEIGHT,
+        floor_plan_image_url=url_for("static", filename="images/floor_plan.png"),
     )

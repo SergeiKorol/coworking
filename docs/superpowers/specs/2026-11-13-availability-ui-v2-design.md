@@ -143,7 +143,7 @@ UnitStatus: unit_id, display_name, type_id, occupied: bool
 |------|---------|
 | Главная | Убрать из потока; `/` → availability |
 | Слоты под схемой | **Вариант A** — карточки |
-| Схема | PNG + CSS overlay |
+| Схема | PNG in SVG hotspots — [2026-11-21-availability-floor-png-svg-overlay-design.md](./2026-11-21-availability-floor-png-svg-overlay-design.md) |
 | Переговорка UI | Оверлей + карточка/блок под схемой |
 | Переговорка логика | Daily, без часов |
 | Столы | Только занят/свободен на день |

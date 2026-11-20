@@ -65,40 +65,38 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
 
-.floor-plan-img {
+.floor-plan-svg {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.floor-overlay-marker {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  padding: 0.2rem 0.45rem;
-  border-radius: 0.35rem;
-  font-size: 0.65rem;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-  pointer-events: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+.floor-unit--free .floor-unit__badge {
+  fill: #ffffff;
+  stroke: rgba(0, 0, 0, 0.25);
+  stroke-width: 1.5;
 }
 
-.floor-overlay-marker--free {
-  background: #d8f5dc;
-  color: #14532d;
-  border: 1px solid #86efac;
+.floor-unit--free .floor-unit__label {
+  fill: #1a1a1a;
 }
 
-.floor-overlay-marker--busy {
-  background: #fde2e2;
-  color: #7f1d1d;
-  border: 1px solid #fca5a5;
+.floor-unit--busy .floor-unit__badge {
+  fill: #d946ef;
+  stroke: rgba(0, 0, 0, 0.15);
+  stroke-width: 1.5;
 }
 
-.floor-overlay-marker__name {
-  display: block;
-  font-weight: 600;
+.floor-unit--busy .floor-unit__label {
+  fill: #ffffff;
+}
+
+.floor-unit--free .floor-unit__table {
+  fill: #ffffff;
+}
+
+.floor-unit--busy .floor-unit__table {
+  fill: #d946ef;
 }
 
 .unit-card {
@@ -145,11 +143,5 @@
 
   .site-header__contacts {
     text-align: center;
-  }
-
-  .floor-overlay-marker {
-    font-size: 0.55rem;
-    max-width: 4.5rem;
-    white-space: normal;
   }
 }
