@@ -77,13 +77,7 @@ pytest -v
    - обязательно: `FLASK_SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`;
    - **`DATABASE_URL=sqlite:////data/coworking.db`** — SQLite на постоянном диске Amvera.
 4. Сборка ставит только **`requirements.txt`** (без pytest).
-5. После первого успешного деплоя один раз в консоли Amvera:
-
-   ```bash
-   export FLASK_APP=wsgi.py
-   flask db upgrade
-   ```
-
+5. При старте контейнера `amvera.yml` выполняет **`flask db upgrade`**, затем gunicorn (миграции в `migrations/versions/`).
 6. Проверьте публичную страницу `/availability` и вход `/admin/login`.
 
 Если 502/503: убедитесь, что gunicorn слушает `0.0.0.0` и `containerPort` совпадает с портом в `--bind` (см. [FAQ Amvera](https://docs.amvera.ru/general/FAQ/502-503-error.html)).
