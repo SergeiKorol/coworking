@@ -12,13 +12,15 @@
   {% block header %}
   <header class="site-header">
     <div class="site-header__inner">
-      <div class="site-header__logo">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="WORK — работа и общение" class="site-header__logo-img">
-      </div>
       <div class="site-header__title">Коворкинг</div>
-      <div class="site-header__contacts">
-        <div class="site-header__address">{{ site_address }}</div>
-        <a href="tel:{{ site_phone | replace(' ', '') | replace('(', '') | replace(')', '') | replace('-', '') }}" class="site-header__phone">{{ site_phone }}</a>
+      <div class="site-header__row-mobile">
+        <div class="site-header__logo">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="WORK — работа и общение" class="site-header__logo-img">
+        </div>
+        <div class="site-header__contacts">
+          <div class="site-header__address">{{ site_address }}</div>
+          <a href="tel:{{ site_phone | replace(' ', '') | replace('(', '') | replace(')', '') | replace('-', '') }}" class="site-header__phone">{{ site_phone }}</a>
+        </div>
       </div>
     </div>
   </header>

@@ -33,6 +33,18 @@
       height="{{ meeting_hotspot.height }}"
       rx="{{ meeting_hotspot.rx }}"
     />
+    <text
+      class="floor-unit__caption"
+      x="{{ meeting_hotspot.caption_x }}"
+      y="{{ meeting_hotspot.caption_y }}"
+      text-anchor="middle"
+      font-size="{{ meeting_hotspot.caption_font_size }}"
+      font-weight="600"
+      font-family="Arial,sans-serif"
+    >
+      <tspan x="{{ meeting_hotspot.caption_x }}" dy="0">{{ meeting_hotspot.caption_line1 }}</tspan>
+      <tspan x="{{ meeting_hotspot.caption_x }}" dy="1.2em">{{ meeting_hotspot.caption_line2 }}</tspan>
+    </text>
   </g>
 
   {% for spot in desk_hotspots %}

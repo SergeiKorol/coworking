@@ -12,7 +12,7 @@
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 copy .env.example .env
 # отредактируйте .env
 set FLASK_APP=wsgi.py
@@ -26,7 +26,10 @@ flask --app wsgi run
 
 ## Тесты
 
+Только для локальной разработки (`requirements-dev.txt` не используется на Amvera):
+
 ```bash
+pip install -r requirements-dev.txt
 pytest -v
 ```
 
@@ -63,6 +66,27 @@ pytest -v
 5. На экране Deploy **не** включайте «production database» с копированием из dev Postgres — для SQLite это не нужно.
 
 В репозитории лежит `.replit` без лишнего проброса порта `8080`.
+
+## Amvera Cloud
+
+Документация: [Python + pip](https://docs.amvera.ru/applications/environments/python-pip.html), [пример Flask](https://docs.amvera.ru/general/examples/python-flask.html).
+
+1. В [cloud.amvera.ru](https://cloud.amvera.ru/) создайте приложение и привяжите git-репозиторий (или `git push` на remote Amvera).
+2. В репозитории есть **`amvera.yml`**: gunicorn → **`wsgi:app`**, порт **5000**, `persistenceMount: /data`.
+3. В **переменных окружения** приложения (не `.env` в git) задайте поля из `.env.example`:
+   - обязательно: `FLASK_SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`;
+   - **`DATABASE_URL=sqlite:////data/coworking.db`** — SQLite на постоянном диске Amvera.
+4. Сборка ставит только **`requirements.txt`** (без pytest).
+5. После первого успешного деплоя один раз в консоли Amvera:
+
+   ```bash
+   export FLASK_APP=wsgi.py
+   flask db upgrade
+   ```
+
+6. Проверьте публичную страницу `/availability` и вход `/admin/login`.
+
+Если 502/503: убедитесь, что gunicorn слушает `0.0.0.0` и `containerPort` совпадает с портом в `--bind` (см. [FAQ Amvera](https://docs.amvera.ru/general/FAQ/502-503-error.html)).
 
 ## Перенос на платный хостинг
 

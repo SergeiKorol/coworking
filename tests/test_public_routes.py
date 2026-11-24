@@ -38,14 +38,34 @@ def test_availability_includes_calendar_ui(client) -> None:
     assert 'id="availability-calendar-open"' in body, "calendar button required"
 
 
-def test_public_header_css_hides_logo_on_mobile() -> None:
+def test_public_header_css_shows_logo_row_on_mobile() -> None:
     css_path = (
         Path(__file__).resolve().parent.parent / "app/static/css/availability-v2.css"
     )
     css = css_path.read_text(encoding="utf-8")
-    assert ".site-header__logo" in css and "display: none" in css, (
-        "mobile stylesheet must hide header logo"
+    assert "site-header__row-mobile" in css, "mobile header must use logo row"
+    assert ".site-header__logo" in css
+    logo_hide = ".site-header__logo" in css and "display: none" in css.split(
+        ".site-header__logo"
+    )[1][:80]
+    assert not logo_hide, "mobile header must not hide logo"
+    mobile_css = css.split("@media (max-width: 768px)", 1)[1]
+    contacts_rule = mobile_css.split(".site-header__contacts", 1)[1].split("}", 1)[0]
+    assert "flex-direction: column" in contacts_rule, (
+        "mobile contacts must stack address over phone"
     )
+    address_rule = mobile_css.split(".site-header__address", 1)[1].split("}", 1)[0]
+    assert "white-space: nowrap" not in address_rule, (
+        "address must wrap on mobile, not single-line ellipsis"
+    )
+
+
+def test_availability_includes_meeting_caption(client) -> None:
+    response = client.get("/availability")
+    body = response.data.decode("utf-8")
+    assert "floor-unit__caption" in body, "meeting caption must render on floor plan"
+    assert "16кв.м" in body
+    assert "site-header__row-mobile" in body
 
 
 def test_availability_ok(client) -> None:

@@ -15,7 +15,7 @@ class DeskHotspot:
 
 @dataclass(frozen=True)
 class MeetingTableHotspot:
-    """Meeting room table fill overlay in viewBox coordinates."""
+    """Meeting room table fill and caption overlay in viewBox coordinates."""
 
     unit_id: str = "meeting-room"
     x: float = 95.0
@@ -23,6 +23,11 @@ class MeetingTableHotspot:
     width: float = 500.0
     height: float = 115.0
     rx: float = 14.0
+    caption_x: float = 345.0
+    caption_y: float = 480.0
+    caption_font_size: float = 22.0
+    caption_line1: str = "16кв.м"
+    caption_line2: str = "10 посадочных мест"
 
 
 FLOOR_PLAN_VIEWBOX_WIDTH = 1645

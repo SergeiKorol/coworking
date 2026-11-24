@@ -1,4 +1,4 @@
-"""WSGI entry point for production hosts (PythonAnywhere, HelioHost, Replit)."""
+"""WSGI entry point for production hosts (Amvera, PythonAnywhere, HelioHost, Replit)."""
 
 import os
 from pathlib import Path
