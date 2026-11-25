@@ -75,9 +75,9 @@ pytest -v
 2. В репозитории есть **`amvera.yml`**: gunicorn → **`wsgi:app`**, порт **5000**, `persistenceMount: /data`.
 3. В **переменных окружения** приложения (не `.env` в git) задайте поля из `.env.example`:
    - обязательно: `FLASK_SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`;
-   - **`DATABASE_URL=sqlite:////data/coworking.db`** — SQLite на постоянном диске Amvera.
+   - **`DATABASE_URL=sqlite:////data/coworking.db`** (или любой путь к SQLite-файлу).
 4. Сборка ставит только **`requirements.txt`** (без pytest).
-5. Перед gunicorn запускается **`python -m app.db_bootstrap`** (миграции + reconcile, если ранее вызывали `create_all` в консоли).
+5. Перед gunicorn: **`python -m app.db_init`** — удаляет файл SQLite и **`create_all()`**. После каждого **перезапуска** контейнера БД пустая (брони не сохраняются между рестартами). Alembic на Amvera **не** нужен.
 6. Проверьте публичную страницу `/availability` и вход `/admin/login`.
 
 Если 502/503: убедитесь, что gunicorn слушает `0.0.0.0` и `containerPort` совпадает с портом в `--bind` (см. [FAQ Amvera](https://docs.amvera.ru/general/FAQ/502-503-error.html)).
