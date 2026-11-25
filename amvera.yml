@@ -10,4 +10,3 @@ build:
 run:
   command: sh -c "python3 -m app.db_init && exec gunicorn --workers 2 --bind 0.0.0.0:5000 --timeout 60 wsgi:app"
   containerPort: 5000
-  persistenceMount: /data
