@@ -8,8 +8,23 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from app import create_app
+from app.startup_log import log_environment_presence, log_fatal, log_startup
 
-app = create_app()
+log_startup("phase=wsgi loading application")
+_missing = log_environment_presence()
+
+try:
+    app = create_app()
+except Exception as exc:
+    log_fatal(exc, phase="wsgi")
+    raise
+
+if _missing:
+    log_startup(
+        f"wsgi: warning — required env was missing at import: {', '.join(_missing)}"
+    )
+else:
+    log_startup("phase=wsgi application object created")
 
 
 def main() -> None:

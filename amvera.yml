@@ -8,5 +8,5 @@ build:
   requirementsPath: requirements.txt
 
 run:
-  command: sh -c "python3 -m app.db_init && exec gunicorn --workers 2 --bind 0.0.0.0:5000 --timeout 60 wsgi:app"
+  command: sh -c "python3 -m app.db_init && exec gunicorn --workers 2 --bind 0.0.0.0:5000 --timeout 60 --access-logfile - --error-logfile - --log-level info wsgi:app"
   containerPort: 5000

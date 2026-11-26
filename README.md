@@ -77,7 +77,7 @@ pytest -v
    - обязательно: `FLASK_SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`;
    - **`DATABASE_URL=sqlite:///instance/coworking.db`** — файл в `/app/instance`, без обязательного тома `/data`.
 4. Сборка ставит только **`requirements.txt`** (без pytest).
-5. Перед gunicorn: **`python3 -m app.db_init`** — удаляет файл SQLite и **`create_all()`**. После каждого **перезапуска** контейнера БД пустая. Alembic на Amvera **не** нужен.
+5. Перед gunicorn: **`python3 -m app.db_init`** — удаляет файл SQLite и **`create_all()`**. После каждого **перезапуска** контейнера БД пустая. Alembic на Amvera **не** нужен. В логах ищите строки с префиксом **`startup:`** (секреты только как `set` / `MISSING`, без значений).
 6. Проверьте публичную страницу `/availability` и вход `/admin/login`.
 
 **Логи системы:** `secret "amvera-artifacts-s3" not found` — часто [временная ошибка Amvera](https://docs.amvera.ru/general/FAQ/infinity-start.html) (подождите до ~15 мин). `PersistentVolumeClaims ... unbound` — не привязан диск `/data` (новый проект/тариф); для SQLite в `/app/instance` том не обязателен, задайте `DATABASE_URL` как выше.
